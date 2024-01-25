@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 
+# ADD API HERE
 api = ''
 
 def get_data(location, days=1, kind=None):
@@ -19,39 +20,44 @@ def get_data(location, days=1, kind=None):
     # Extract the 'list' attribute from the dictionary and limit the data to the specified number of days
     data = data['list'][:8 * days]
     
-    if kind != None:
-    # Flatten the nested structures in the DataFrame using json_normalize
-    data_json = pd.json_normalize(data)
+    if str(kind) == 'Temperature':
+        # Flatten the nested structures in the DataFrame using json_normalize
+        data_json = pd.json_normalize(data)
+        
+        # Extract specific columns from the flattened DataFrame (temperature and date/time)
+        temperature = data_json['main.temp'] / 10  # Divide by 10 
+        date_time = data_json['dt_txt']
+        
+        # Return a tuple containing the temperature and date/time data
+        return temperature, date_time
     
-    # Extract specific columns from the flattened DataFrame (temperature and date/time)
-    temperature = data_json['main.temp'] / 10  # Divide by 10 
-    date_time = data_json['dt_txt']
-    
-    # Return a tuple containing the temperature and date/time data
-    return temperature, date_time
+    # Check if the input 'kind' is 'Weather'
+    elif str(kind) == 'Weather':
+        # Convert the input data to a Pandas DataFrame
+        data = pd.DataFrame(data)
+        
+        # Initialize an empty list to store processed weather data
+        data_weather = []
 
+        # Check if the 'weather' key exists in the DataFrame
+        if 'weather' in data:
+            # Loop through each entry in the 'weather' column
+            for i in range(len(data['weather'])):
+                # Extract relevant information from the 'weather' column
+                full_data = data.loc[i, 'weather'][0]
+                icon = full_data.get('icon')
 
-if __name__ == '__main__':
-    data = get_data('Marrakesh')
-    data_0 = data.get('list')[0]
+                # Create a dictionary containing the icon URL and timestamp
+                _ = {
+                    'icon': f'http://openweathermap.org/img/w/{icon}.png',
+                    'time': f'{data.loc[i, "dt_txt"]}'
+                }
 
-    data_with_date = get_data(location='Marrakesh',days=3)
+                # Append the dictionary to the 'data_weather' list
+                data_weather.append(_)
+        else:
+            # Print a message if the 'weather' key is not found in the data
+            print("'Weather' key not found in data")
 
-
-
-    print(len(data.get('list')))
-    print(data_0.get('dt_txt'))
-
-
-# data = pd.DataFrame(data)
-
-# temp = [20,23,18,18,14]
-# days = [1,2,3,4,5]
-
-# Create DataFrame using pd.DataFrame constructor
-# data_tralala = pd.DataFrame(data=tralala, columns=col_)
-
-# Plot using Plotly Express
-# pdt = px.line(x=days, y=temp, labels={'x': 'Days', 'y': 'Temp'})
-
-# st.plotly_chart(pdt)
+        # Return the processed weather data
+        return data_weather

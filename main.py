@@ -1,6 +1,4 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 import plotly.express as px
 import back_end as be
 
@@ -14,16 +12,31 @@ data_to_view = st.selectbox(label='Select data to view',options=('Temperature','
 
 st.title(f'{data_to_view} for the next {forcast_day} days in {place_input}')
 
+data_all = be.get_data(place_input,forcast_day,data_to_view)
 
-try:
-    temp,days = be.get_data(place_input,forcast_day)
+if data_to_view == 'Temperature':
+    try:
+        temp,days = data_all
 
-    pdt = px.line(x=days, y=temp, labels={'x': 'Days', 'y': 'Temp'})
+        pdt = px.line(x=days, y=temp, labels={'x': 'Days', 'y': 'Temp'})
 
-    st.plotly_chart(pdt)
-except KeyError as e:
-    if 'list' in str(e):
-        print("KeyError: 'list'")
-        print('No data yet passed')
-    else:
-        raise
+        st.plotly_chart(pdt)
+    except KeyError as e:
+        if 'list' in str(e):
+            print("KeyError: 'list'")
+            print('No data yet passed')
+        else:
+            raise
+
+if data_to_view == 'Weather':
+    num_columns = 6
+
+    columns = st.columns(num_columns)
+    
+    for i, e in enumerate(data_all):
+        # Start a new row for every 6 images
+        if i % num_columns == 0:
+            columns = st.columns(num_columns)
+
+        with columns[i % num_columns]:
+            st.image(image=e['icon'], caption=e['time'])
