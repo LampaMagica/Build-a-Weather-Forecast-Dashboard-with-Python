@@ -1,8 +1,8 @@
 import requests
 import pandas as pd
 
-# ADD API HERE
-api = ''
+# Add API KEY
+api = '2243213ada6eb4f2f91c966d964e9c10'
 
 def get_data(location, days=1, kind=None):
 
@@ -31,33 +31,18 @@ def get_data(location, days=1, kind=None):
         # Return a tuple containing the temperature and date/time data
         return temperature, date_time
     
-    # Check if the input 'kind' is 'Weather'
     elif str(kind) == 'Weather':
-        # Convert the input data to a Pandas DataFrame
         data = pd.DataFrame(data)
-        
-        # Initialize an empty list to store processed weather data
         data_weather = []
-
-        # Check if the 'weather' key exists in the DataFrame
         if 'weather' in data:
-            # Loop through each entry in the 'weather' column
             for i in range(len(data['weather'])):
-                # Extract relevant information from the 'weather' column
-                full_data = data.loc[i, 'weather'][0]
+                full_data = data.loc[i,'weather'][0]
                 icon = full_data.get('icon')
-
-                # Create a dictionary containing the icon URL and timestamp
                 _ = {
-                    'icon': f'http://openweathermap.org/img/w/{icon}.png',
-                    'time': f'{data.loc[i, "dt_txt"]}'
+                    'icon' : f'http://openweathermap.org/img/w/{icon}.png',
+                    'time' : f'{data.loc[i,"dt_txt"]}'
                 }
-
-                # Append the dictionary to the 'data_weather' list
                 data_weather.append(_)
         else:
-            # Print a message if the 'weather' key is not found in the data
             print("'Weather' key not found in data")
-
-        # Return the processed weather data
         return data_weather
