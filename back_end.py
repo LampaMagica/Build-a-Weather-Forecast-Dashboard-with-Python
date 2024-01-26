@@ -12,10 +12,10 @@ def get_data(location, days=1, kind=None):
     url = f'https://api.openweathermap.org/data/2.5/forecast?q={location}&appid={api}'
     
     # Make a GET request to the OpenWeatherMap API
-    request = requests.get(url)
+    response = requests.get(url)
     
     # Parse the JSON response into a Python dictionary
-    data = request.json()
+    data = response.json()
     
     # Extract the 'list' attribute from the dictionary and limit the data to the specified number of days
     data = data['list'][:8 * days]
